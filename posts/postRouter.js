@@ -5,7 +5,7 @@ const router = express.Router();
 
 
 
-router.use(validatePost)
+//router.use(validatePost)
 
 router.get('/', (req, res) => {
   postDb.get()
