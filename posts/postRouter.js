@@ -1,21 +1,55 @@
 const express = require('express');
-
+const validatePost = require("../users/userRouter.js")
+const postDb = require("./postDb");
 const router = express.Router();
 
+
+
+router.use(validatePost)
+
 router.get('/', (req, res) => {
-  // do your magic!
+  postDb.get()
+  .then(posts => {
+    res.status(200).json(posts)
+  })
+  .catch(err => {
+    res.status(404).json({
+      error : "no data"
+    })
+  })
+
 });
 
 router.get('/:id', (req, res) => {
-  // do your magic!
+  postDb.getById(req.params.id)
+  .then(post => {
+    res.status(200).json(post)
+  })
+  .catch(err => {
+    res.status(404).json({
+      error : "error"
+    })
+  })
 });
 
 router.delete('/:id', (req, res) => {
-  // do your magic!
+  postDb.remove(req.params.id)
+  .then(item => {
+    res.status(200).json(item)
+  })
+  .catch(err => {
+    res.status(404).send("no luck deleting")
+  })
 });
 
 router.put('/:id', (req, res) => {
-  // do your magic!
+  postDb.update(req.params.id, req.body)
+  .then(post => {
+    res.status(200).json(post)
+  })
+  .catch(err => {
+    res.status(404).send("no luck updating records")
+  })
 });
 
 // custom middleware
