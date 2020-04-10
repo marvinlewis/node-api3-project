@@ -1,5 +1,4 @@
 const express = require('express');
-const validatePost = require("../users/userRouter.js")
 const postDb = require("./postDb");
 const router = express.Router();
 
@@ -51,6 +50,16 @@ router.put('/:id', (req, res) => {
     res.status(404).send("no luck updating records")
   })
 });
+
+router.post("/", (req, res) => {
+  postDb.insert(req.body)
+  .then(post => {
+    res.status(200).json(post)
+  })
+  .catch(err => {
+    res.status(400).send("problem posting")
+  })
+})
 
 // custom middleware
 
