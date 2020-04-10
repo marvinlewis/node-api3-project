@@ -1,10 +1,10 @@
 const express = require('express');
 const postDb = require("./postDb");
 const router = express.Router();
+const validatePost = require("../users/userRouter");
 
 
 
-//router.use(validatePost)
 
 router.get('/', (req, res) => {
   postDb.get()
@@ -51,7 +51,7 @@ router.put('/:id', (req, res) => {
   })
 });
 
-router.post("/", (req, res) => {
+router.post("/", validatePost, (req, res) => {
   postDb.insert(req.body)
   .then(post => {
     res.status(200).json(post)
