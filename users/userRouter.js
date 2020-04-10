@@ -2,11 +2,10 @@ const express = require("express");
 const userDb = require("./userDb");
 const router = express.Router();
 const server = require("../server");
-const postDb = require("../posts/postDb");
 
 
 
-router.post("/", validateUser, (req, res) => {
+router.post("/", (req, res) => {
   userDb
     .insert(req.body)
     .then((user) => {
@@ -17,7 +16,7 @@ router.post("/", validateUser, (req, res) => {
     });
 });
 
-router.post("/:id/posts", validateUserId, (req, res) => {
+router.post("/:id/posts", (req, res) => {
   userDb.getById(req.params.id);
 });
 
@@ -32,7 +31,8 @@ router.get("/",  (req, res) => {
     });
 });
 
-router.get("/:id", (req, res) => {
+router.get("/:id", validateUserId, (req, res) => {
+  console.log(req.body)
   userDb
     .getById(req.params.id)
     .then((post) => {
@@ -43,9 +43,9 @@ router.get("/:id", (req, res) => {
     });
 });
 
-router.get("/:id/posts", (req, res) => {
-  postDb
-    .getById(req.params.id)
+router.get("/:id/posts", validateUserId, (req, res) => {
+  userDb
+    .getUserPosts(req.params.id)
     .then((post) => {
       res.status(200).json(post);
     })
@@ -54,7 +54,7 @@ router.get("/:id/posts", (req, res) => {
     });
 });
 
-router.delete("/:id", (req, res) => {
+router.delete("/:id", validateUserId, (req, res) => {
   userDb
     .remove(req.params.id)
     .then((post) => {
@@ -65,7 +65,7 @@ router.delete("/:id", (req, res) => {
     });
 });
 
-router.put("/:id", (req, res) => {
+router.put("/:id", validateUserId, (req, res) => {
   userDb
     .update(req.params.id, req.body)
     .then((post) => {
@@ -79,16 +79,16 @@ router.put("/:id", (req, res) => {
 //custom middleware
 
 function validateUserId (req, res, next) {
-  const { id } = req.body;
+  const id = req.params.id;
   userDb
     .getById(id)
     .then((post) => {
-      if (id === post.id) {
+      if (id == post.id) {
         next();
       }
     })
     .catch((err) => {
-      res.status(400).json(`{ message: "invalid user id" }`);
+      res.status(500).json({ message: "invalid user id" });
     });
   }
 
@@ -106,18 +106,6 @@ function validateUser (req, res, next) {
   }
 }
 
-function validatePost (req, res, next) {
-  if (!req.body) {
-    res.status(400).json({
-      message: "missing post data",
-    });
-  } else if (!req.body.text) {
-    res.status(400).json({
-      message: "missing required text field",
-    });
-  } else {
-    next();
-  }
-}
 
-(module.exports = router, validatePost);
+
+(module.exports = router);

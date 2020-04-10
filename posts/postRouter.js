@@ -1,7 +1,7 @@
 const express = require('express');
 const postDb = require("./postDb");
 const router = express.Router();
-const validatePost = require("../users/userRouter");
+
 
 
 
@@ -52,6 +52,7 @@ router.put('/:id', (req, res) => {
 });
 
 router.post("/", validatePost, (req, res) => {
+  console.log(req.body)
   postDb.insert(req.body)
   .then(post => {
     res.status(200).json(post)
@@ -62,6 +63,21 @@ router.post("/", validatePost, (req, res) => {
 })
 
 // custom middleware
+
+function validatePost (req, res, next) {
+  console.log(req.body)
+  if (!req.body) {
+    res.status(400).json({
+      message: "missing post data",
+    });
+  } else if (!req.body.text) {
+    res.status(400).json({
+      message: "missing required text field",
+    });
+  } else {
+    return next();
+  }
+}
 
 function validatePostId(req, res, next) {
   // do your magic!
